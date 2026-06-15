@@ -35,6 +35,7 @@ export default function MatchCard({ match, existingBet }: Props) {
   // sync when parent loads bets from Firestore after auth resolves
   useEffect(() => {
     if (existingBet != null) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setBet(existingBet);
       setHome(existingBet.homeScore);
       setAway(existingBet.awayScore);

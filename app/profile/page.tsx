@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/auth-context";
 import { Bet, getUserBets } from "@/lib/bets";
 import { MATCHES } from "@/lib/matches";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type MatchResult = { homeScore: number; awayScore: number };
 
@@ -133,7 +134,7 @@ export default function ProfilePage() {
           {bets.length === 0 && (
             <div className="text-center py-10 text-gray-400">
               Nie masz jeszcze żadnych typów.{" "}
-              <a href="/" className="text-green-600 hover:underline">Obstaw pierwszy mecz!</a>
+              <Link href="/" className="text-green-600 hover:underline">Obstaw pierwszy mecz!</Link>
             </div>
           )}
         </>
