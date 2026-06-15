@@ -1,65 +1,113 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState } from "react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { Match, StaticMatch, MatchStatus, MATCHES } from "@/lib/matches";
+import { Bet, getUserBets } from "@/lib/bets";
+import { useAuth } from "@/lib/auth-context";
+import MatchCard from "@/components/MatchCard";
+
+type MatchResult = { homeScore: number; awayScore: number };
+
+const MATCH_DURATION_MS = 110 * 60 * 1000;
+
+function computeStatus(matchDate: string, hasResult: boolean): MatchStatus {
+  const now = Date.now();
+  const start = new Date(matchDate).getTime();
+  if (hasResult || now >= start + MATCH_DURATION_MS) return "finished";
+  if (now >= start) return "live";
+  return "upcoming";
+}
+
+export default function HomePage() {
+  const { user } = useAuth();
+  const [bets, setBets] = useState<Record<string, Bet>>({});
+  const [results, setResults] = useState<Record<string, MatchResult>>({});
+  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("all");
+
+  useEffect(() => {
+    getDocs(collection(db, "results")).then((snap) => {
+      const map: Record<string, MatchResult> = {};
+      snap.docs.forEach((d) => {
+        const data = d.data();
+        map[d.id] = { homeScore: data.homeScore, awayScore: data.awayScore };
+      });
+      setResults(map);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    getUserBets(user.uid).then((list) => {
+      const map: Record<string, Bet> = {};
+      for (const b of list) map[b.matchId] = b;
+      setBets(map);
+    });
+  }, [user]);
+
+  // Merge static matches with dynamic status + Firestore results
+  const mergedMatches: Match[] = MATCHES.map((m: StaticMatch) => {
+    const result = results[m.id];
+    const status = computeStatus(m.date, !!result);
+    return result
+      ? { ...m, status, homeScore: result.homeScore, awayScore: result.awayScore }
+      : { ...m, status };
+  });
+
+  const filtered = mergedMatches.filter((m) => {
+    if (filter === "upcoming") return m.status === "upcoming";
+    if (filter === "finished") return m.status === "finished";
+    return true;
+  });
+
+  const byDate = new Map<string, Match[]>();
+  for (const m of [...filtered].sort((a, b) => a.date.localeCompare(b.date))) {
+    const day = m.date.slice(0, 10);
+    if (!byDate.has(day)) byDate.set(day, []);
+    byDate.get(day)!.push(m);
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div>
+      <div className="bg-gradient-to-r from-green-800 to-green-600 rounded-2xl p-6 mb-6 text-white text-center">
+        <h1 className="text-3xl font-bold mb-1">⚽ Mundial 2026</h1>
+        <p className="text-green-200">USA · Kanada · Meksyk</p>
+        <p className="text-sm text-green-300 mt-2">
+          Typuj wyniki i zdobywaj punkty —{" "}
+          <strong className="text-white">3 pkt</strong> za dokładny wynik,{" "}
+          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę
+        </p>
+      </div>
+
+      <div className="flex gap-2 mb-6">
+        {(["all", "upcoming", "finished"] as const).map((f) => (
+          <button
+            key={f}
+            onClick={() => setFilter(f)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              filter === f
+                ? "bg-green-700 text-white"
+                : "bg-white text-gray-600 border border-gray-200 hover:border-green-400"
+            }`}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {f === "all" ? "Wszystkie" : f === "upcoming" ? "Nadchodzące" : "Zakończone"}
+          </button>
+        ))}
+      </div>
+
+      {Array.from(byDate.entries()).map(([day, matches]) => (
+        <div key={day} className="mb-8">
+          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            {new Date(day).toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" })}
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {matches.map((m) => (
+              <MatchCard key={m.id} match={m} existingBet={bets[m.id] ?? null} />
+            ))}
+          </div>
         </div>
-      </main>
+      ))}
     </div>
   );
 }
