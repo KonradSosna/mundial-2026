@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="theme-color" content="#15803d" />
       </head>
-      <body className={`${geist.className} min-h-screen`}>
+      <body className={`${geist.className} min-h-screen`} suppressHydrationWarning>
         <div
           className="fixed inset-0 -z-10 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/stadium.jpg')" }}
