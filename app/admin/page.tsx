@@ -5,6 +5,7 @@ import { useAuth } from "@/lib/auth-context";
 import { MATCHES, StaticMatch } from "@/lib/matches";
 import { settleMatch, getMatchResult } from "@/lib/bets";
 import { useRouter } from "next/navigation";
+import Spinner from "@/components/Spinner";
 
 interface Result { homeScore: number; awayScore: number }
 
@@ -62,7 +63,7 @@ export default function AdminPage() {
     }
   };
 
-  if (loading) return <p className="text-center py-10 text-gray-400">Ładowanie...</p>;
+  if (loading) return <Spinner />;
   if (!profile?.isAdmin) return null;
 
   const byDate = groupByDate([...MATCHES].sort((a, b) => a.date.localeCompare(b.date)));

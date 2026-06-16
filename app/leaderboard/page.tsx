@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
+import Spinner from "@/components/Spinner";
 
 interface UserRow {
   uid: string;
@@ -34,7 +35,7 @@ export default function LeaderboardPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-400">Ładowanie...</div>
+        <Spinner />
       ) : rows.length === 0 ? (
         <div className="text-center py-10 text-gray-400">Nikt jeszcze nie zdobył punktów.</div>
       ) : (

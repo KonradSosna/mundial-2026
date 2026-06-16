@@ -7,6 +7,7 @@ import { Match, StaticMatch, MatchStatus, MATCHES } from "@/lib/matches";
 import { Bet, getUserBets } from "@/lib/bets";
 import { useAuth } from "@/lib/auth-context";
 import MatchCard from "@/components/MatchCard";
+import Spinner from "@/components/Spinner";
 
 type MatchResult = { homeScore: number; awayScore: number };
 
@@ -25,16 +26,19 @@ export default function HomePage() {
   const [bets, setBets] = useState<Record<string, Bet>>({});
   const [results, setResults] = useState<Record<string, MatchResult>>({});
   const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("all");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDocs(collection(db, "results")).then((snap) => {
-      const map: Record<string, MatchResult> = {};
-      snap.docs.forEach((d) => {
-        const data = d.data();
-        map[d.id] = { homeScore: data.homeScore, awayScore: data.awayScore };
-      });
-      setResults(map);
-    });
+    getDocs(collection(db, "results"))
+      .then((snap) => {
+        const map: Record<string, MatchResult> = {};
+        snap.docs.forEach((d) => {
+          const data = d.data();
+          map[d.id] = { homeScore: data.homeScore, awayScore: data.awayScore };
+        });
+        setResults(map);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   useEffect(() => {
@@ -96,7 +100,9 @@ export default function HomePage() {
         ))}
       </div>
 
-      {Array.from(byDate.entries()).map(([day, matches]) => (
+      {loading ? (
+        <Spinner />
+      ) : Array.from(byDate.entries()).map(([day, matches]) => (
         <div key={day} className="mb-8">
           <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
             {new Date(day).toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" })}

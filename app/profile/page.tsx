@@ -8,6 +8,7 @@ import { Bet, getUserBets } from "@/lib/bets";
 import { MATCHES } from "@/lib/matches";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Spinner from "@/components/Spinner";
 
 type MatchResult = { homeScore: number; awayScore: number };
 
@@ -65,7 +66,7 @@ export default function ProfilePage() {
       </div>
 
       {loading ? (
-        <p className="text-center text-gray-400">Ładowanie...</p>
+        <Spinner />
       ) : (
         <>
           {pending.length > 0 && (
