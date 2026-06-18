@@ -15,8 +15,8 @@ export default function MatchCard({ match, existingBet }: Props) {
   const { user } = useAuth();
   const router = useRouter();
   const [showBet, setShowBet] = useState(false);
-  const [home, setHome] = useState(existingBet?.homeScore ?? 0);
-  const [away, setAway] = useState(existingBet?.awayScore ?? 0);
+  const [home, setHome] = useState<string>(existingBet != null ? String(existingBet.homeScore) : "");
+  const [away, setAway] = useState<string>(existingBet != null ? String(existingBet.awayScore) : "");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [bet, setBet] = useState<Bet | null>(existingBet ?? null);
@@ -37,8 +37,8 @@ export default function MatchCard({ match, existingBet }: Props) {
     if (existingBet != null) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setBet(existingBet);
-      setHome(existingBet.homeScore);
-      setAway(existingBet.awayScore);
+      setHome(String(existingBet.homeScore));
+      setAway(String(existingBet.awayScore));
     }
   }, [existingBet]);
 
@@ -63,13 +63,15 @@ export default function MatchCard({ match, existingBet }: Props) {
     if (!user) return router.push("/login");
     setSaving(true);
     try {
-      await placeBet(user.uid, match.id, home, away);
+      const homeScore = home === "" ? 0 : Number(home);
+      const awayScore = away === "" ? 0 : Number(away);
+      await placeBet(user.uid, match.id, homeScore, awayScore);
       setBet({
         id: `${user.uid}_${match.id}`,
         userId: user.uid,
         matchId: match.id,
-        homeScore: home,
-        awayScore: away,
+        homeScore,
+        awayScore,
         placedAt: new Date().toISOString(),
         settled: false,
         points: 0,
@@ -153,7 +155,8 @@ export default function MatchCard({ match, existingBet }: Props) {
                   min={0}
                   max={20}
                   value={home}
-                  onChange={(e) => setHome(Number(e.target.value))}
+                  placeholder="0"
+                  onChange={(e) => setHome(e.target.value)}
                   className="w-16 h-10 text-center text-lg font-bold text-black border-2 border-green-600 rounded-lg focus:outline-none focus:border-green-800"
                 />
               </div>
@@ -165,7 +168,8 @@ export default function MatchCard({ match, existingBet }: Props) {
                   min={0}
                   max={20}
                   value={away}
-                  onChange={(e) => setAway(Number(e.target.value))}
+                  placeholder="0"
+                  onChange={(e) => setAway(e.target.value)}
                   className="w-16 h-10 text-center text-lg font-bold text-black border-2 border-green-600 rounded-lg focus:outline-none focus:border-green-800"
                 />
               </div>
@@ -173,7 +177,7 @@ export default function MatchCard({ match, existingBet }: Props) {
             <div className="flex gap-2">
               <button
                 onClick={() => setShowBet(false)}
-                className="flex-1 text-sm border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 text-sm border border-gray-900 text-gray-900 py-2 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 Anuluj
               </button>

@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import Spinner from "@/components/Spinner";
 
 interface Result { homeScore: number; awayScore: number }
+interface ScoreInput { homeScore: string; awayScore: string }
 
 function groupByDate(matches: StaticMatch[]): [string, StaticMatch[]][] {
   const map = new Map<string, StaticMatch[]>();
@@ -34,7 +35,7 @@ function formatTime(isoStr: string) {
 export default function AdminPage() {
   const { profile, loading } = useAuth();
   const router = useRouter();
-  const [scores, setScores] = useState<Record<string, Result>>({});
+  const [scores, setScores] = useState<Record<string, ScoreInput>>({});
   const [results, setResults] = useState<Record<string, Result>>({});
   const [settling, setSettling] = useState<string | null>(null);
   const [settled, setSettled] = useState<Record<string, boolean>>({});
@@ -54,10 +55,12 @@ export default function AdminPage() {
     const s = scores[match.id];
     if (!s) return;
     setSettling(match.id);
+    const homeScore = s.homeScore === "" ? 0 : Number(s.homeScore);
+    const awayScore = s.awayScore === "" ? 0 : Number(s.awayScore);
     try {
-      await settleMatch(match.id, s.homeScore, s.awayScore);
+      await settleMatch(match.id, homeScore, awayScore);
       setSettled((prev) => ({ ...prev, [match.id]: true }));
-      setResults((prev) => ({ ...prev, [match.id]: s }));
+      setResults((prev) => ({ ...prev, [match.id]: { homeScore, awayScore } }));
     } finally {
       setSettling(null);
     }
@@ -84,7 +87,7 @@ export default function AdminPage() {
             <div className="space-y-2">
               {matches.map((match) => {
                 const existingResult = results[match.id];
-                const current = scores[match.id] ?? { homeScore: 0, awayScore: 0 };
+                const current = scores[match.id] ?? { homeScore: "", awayScore: "" };
 
                 return (
                   <div key={match.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3">
@@ -113,10 +116,11 @@ export default function AdminPage() {
                           <input
                             type="number" min={0} max={20}
                             value={current.homeScore}
+                            placeholder="0"
                             onChange={(e) =>
                               setScores((prev) => ({
                                 ...prev,
-                                [match.id]: { ...current, homeScore: Number(e.target.value) },
+                                [match.id]: { ...current, homeScore: e.target.value },
                               }))
                             }
                             className="w-12 h-8 text-center text-black border-2 border-gray-200 rounded focus:border-green-500 focus:outline-none"
@@ -125,10 +129,11 @@ export default function AdminPage() {
                           <input
                             type="number" min={0} max={20}
                             value={current.awayScore}
+                            placeholder="0"
                             onChange={(e) =>
                               setScores((prev) => ({
                                 ...prev,
-                                [match.id]: { ...current, awayScore: Number(e.target.value) },
+                                [match.id]: { ...current, awayScore: e.target.value },
                               }))
                             }
                             className="w-12 h-8 text-center text-black border-2 border-gray-200 rounded focus:border-green-500 focus:outline-none"
