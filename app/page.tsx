@@ -25,7 +25,7 @@ export default function HomePage() {
   const { user } = useAuth();
   const [bets, setBets] = useState<Record<string, Bet>>({});
   const [results, setResults] = useState<Record<string, MatchResult>>({});
-  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("all");
+  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("upcoming");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -60,7 +60,7 @@ export default function HomePage() {
   });
 
   const filtered = mergedMatches.filter((m) => {
-    if (filter === "upcoming") return m.status === "upcoming";
+    if (filter === "upcoming") return m.status === "upcoming" || m.status === "live";
     if (filter === "finished") return m.status === "finished";
     return true;
   });
@@ -85,7 +85,7 @@ export default function HomePage() {
       </div>
 
       <div className="flex gap-2 mb-6">
-        {(["all", "upcoming", "finished"] as const).map((f) => (
+        {(["upcoming", "all", "finished"] as const).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
