@@ -16,6 +16,7 @@ export interface Bet {
   matchId: string;
   homeScore: number;
   awayScore: number;
+  tiebreaker?: "home" | "away";
   placedAt: string;
   points?: number;
   settled?: boolean;
@@ -25,10 +26,11 @@ export async function placeBet(
   userId: string,
   matchId: string,
   homeScore: number,
-  awayScore: number
+  awayScore: number,
+  tiebreaker?: "home" | "away"
 ): Promise<void> {
   const betId = `${userId}_${matchId}`;
-  await setDoc(doc(db, "bets", betId), {
+  const data: Record<string, unknown> = {
     id: betId,
     userId,
     matchId,
@@ -37,7 +39,9 @@ export async function placeBet(
     placedAt: new Date().toISOString(),
     settled: false,
     points: 0,
-  });
+  };
+  if (tiebreaker) data.tiebreaker = tiebreaker;
+  await setDoc(doc(db, "bets", betId), data);
 }
 
 export async function getUserBet(userId: string, matchId: string): Promise<Bet | null> {
@@ -54,15 +58,18 @@ export async function getUserBets(userId: string): Promise<Bet[]> {
 export async function settleMatch(
   matchId: string,
   actualHome: number,
-  actualAway: number
+  actualAway: number,
+  actualTiebreaker?: "home" | "away"
 ): Promise<void> {
   // Save result first so the cron can always re-run if something fails
-  await setDoc(doc(db, "results", matchId), {
+  const resultData: Record<string, unknown> = {
     matchId,
     homeScore: actualHome,
     awayScore: actualAway,
     settledAt: new Date().toISOString(),
-  });
+  };
+  if (actualTiebreaker) resultData.tiebreaker = actualTiebreaker;
+  await setDoc(doc(db, "results", matchId), resultData);
 
   const q = query(
     collection(db, "bets"),
@@ -72,7 +79,7 @@ export async function settleMatch(
   const snap = await getDocs(q);
   if (snap.empty) return;
 
-  const actualResult = Math.sign(actualHome - actualAway);
+  const actualOutcome = Math.sign(actualHome - actualAway);
 
   // Batch all writes for atomicity
   const { writeBatch } = await import("firebase/firestore");
@@ -80,14 +87,15 @@ export async function settleMatch(
 
   for (const betDoc of snap.docs) {
     const bet = betDoc.data() as Bet;
-    const betResult = Math.sign(bet.homeScore - bet.awayScore);
+    const betOutcome = Math.sign(bet.homeScore - bet.awayScore);
 
     let pts = 0;
-    if (bet.homeScore === actualHome && bet.awayScore === actualAway) {
-      pts = 3;
-    } else if (betResult === actualResult) {
-      pts = 1;
-    }
+    // 2 pts for exact score in regular time
+    if (bet.homeScore === actualHome && bet.awayScore === actualAway) pts += 2;
+    // 1 pt for correct outcome (win/draw)
+    if (betOutcome === actualOutcome) pts += 1;
+    // 1 pt for correct tiebreaker (who wins after extra time)
+    if (actualTiebreaker && bet.tiebreaker && bet.tiebreaker === actualTiebreaker) pts += 1;
 
     batch.update(betDoc.ref, { settled: true, points: pts });
 

@@ -17,10 +17,15 @@ export default function MatchCard({ match, existingBet }: Props) {
   const [showBet, setShowBet] = useState(false);
   const [home, setHome] = useState<string>(existingBet != null ? String(existingBet.homeScore) : "");
   const [away, setAway] = useState<string>(existingBet != null ? String(existingBet.awayScore) : "");
+  const [tiebreaker, setTiebreaker] = useState<"home" | "away" | null>(existingBet?.tiebreaker ?? null);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [bet, setBet] = useState<Bet | null>(existingBet ?? null);
   const [allBets, setAllBets] = useState<BetWithUser[]>([]);
+
+  const isKnockout = match.stage !== "group";
+  const isDraw = home !== "" && away !== "" && Number(home) === Number(away);
+  const needsTiebreaker = isKnockout && isDraw;
 
   const matchStarted = new Date(match.date) <= new Date();
   const canBet = match.status === "upcoming" && !matchStarted && user;
@@ -39,6 +44,7 @@ export default function MatchCard({ match, existingBet }: Props) {
       setBet(existingBet);
       setHome(String(existingBet.homeScore));
       setAway(String(existingBet.awayScore));
+      setTiebreaker(existingBet.tiebreaker ?? null);
     }
   }, [existingBet]);
 
@@ -61,17 +67,19 @@ export default function MatchCard({ match, existingBet }: Props) {
 
   const handleBet = async () => {
     if (!user) return router.push("/login");
+    if (needsTiebreaker && !tiebreaker) return;
     setSaving(true);
     try {
       const homeScore = home === "" ? 0 : Number(home);
       const awayScore = away === "" ? 0 : Number(away);
-      await placeBet(user.uid, match.id, homeScore, awayScore);
+      await placeBet(user.uid, match.id, homeScore, awayScore, tiebreaker ?? undefined);
       setBet({
         id: `${user.uid}_${match.id}`,
         userId: user.uid,
         matchId: match.id,
         homeScore,
         awayScore,
+        tiebreaker: tiebreaker ?? undefined,
         placedAt: new Date().toISOString(),
         settled: false,
         points: 0,
@@ -126,6 +134,11 @@ export default function MatchCard({ match, existingBet }: Props) {
         {bet && (
           <div className="mb-2 text-center text-xs bg-yellow-50 border border-yellow-200 rounded-lg py-1.5 text-yellow-800">
             Twój typ: <strong>{bet.homeScore} – {bet.awayScore}</strong>
+            {bet.tiebreaker && (
+              <span className="ml-1 text-yellow-700">
+                (po dogrywce: {bet.tiebreaker === "home" ? match.home : match.away})
+              </span>
+            )}
             {bet.settled && bet.points !== undefined && (
               <span className="ml-2 font-bold text-green-700">+{bet.points} pkt</span>
             )}
@@ -156,7 +169,7 @@ export default function MatchCard({ match, existingBet }: Props) {
                   max={20}
                   value={home}
                   placeholder="0"
-                  onChange={(e) => setHome(e.target.value)}
+                  onChange={(e) => { setHome(e.target.value); setTiebreaker(null); }}
                   className="w-16 h-10 text-center text-lg font-bold text-black border-2 border-green-600 rounded-lg focus:outline-none focus:border-green-800"
                 />
               </div>
@@ -169,11 +182,38 @@ export default function MatchCard({ match, existingBet }: Props) {
                   max={20}
                   value={away}
                   placeholder="0"
-                  onChange={(e) => setAway(e.target.value)}
+                  onChange={(e) => { setAway(e.target.value); setTiebreaker(null); }}
                   className="w-16 h-10 text-center text-lg font-bold text-black border-2 border-green-600 rounded-lg focus:outline-none focus:border-green-800"
                 />
               </div>
             </div>
+            {needsTiebreaker && (
+              <div>
+                <p className="text-xs text-center text-gray-500 mb-1.5">Kto wygra po dogrywce?</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setTiebreaker("home")}
+                    className={`flex-1 text-xs py-2 rounded-lg font-medium border transition-colors ${
+                      tiebreaker === "home"
+                        ? "bg-green-700 text-white border-green-700"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-green-500"
+                    }`}
+                  >
+                    {match.homeFlag} {match.home}
+                  </button>
+                  <button
+                    onClick={() => setTiebreaker("away")}
+                    className={`flex-1 text-xs py-2 rounded-lg font-medium border transition-colors ${
+                      tiebreaker === "away"
+                        ? "bg-green-700 text-white border-green-700"
+                        : "bg-white text-gray-700 border-gray-300 hover:border-green-500"
+                    }`}
+                  >
+                    {match.away} {match.awayFlag}
+                  </button>
+                </div>
+              </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={() => setShowBet(false)}
@@ -183,7 +223,7 @@ export default function MatchCard({ match, existingBet }: Props) {
               </button>
               <button
                 onClick={handleBet}
-                disabled={saving}
+                disabled={saving || (needsTiebreaker && !tiebreaker)}
                 className="flex-1 text-sm bg-green-700 hover:bg-green-600 text-white py-2 rounded-lg font-medium transition-colors disabled:opacity-60"
               >
                 {saving ? "Zapisuję..." : saved ? "Zapisano!" : "Zapisz typ"}
@@ -208,7 +248,14 @@ export default function MatchCard({ match, existingBet }: Props) {
               {allBets.map((b) => (
                 <div key={b.userId} className="flex justify-between items-center text-xs">
                   <span className="text-gray-600">{b.displayName}</span>
-                  <span className="font-bold text-gray-800">{b.homeScore} – {b.awayScore}</span>
+                  <span className="font-bold text-gray-800">
+                    {b.homeScore} – {b.awayScore}
+                    {b.tiebreaker && (
+                      <span className="font-normal text-gray-500 ml-1">
+                        ({b.tiebreaker === "home" ? match.home : match.away})
+                      </span>
+                    )}
+                  </span>
                 </div>
               ))}
             </div>
