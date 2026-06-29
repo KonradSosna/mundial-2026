@@ -66,7 +66,10 @@ export default function HomePage() {
   });
 
   const byDate = new Map<string, Match[]>();
-  for (const m of [...filtered].sort((a, b) => a.date.localeCompare(b.date))) {
+  const sortedFiltered = [...filtered].sort((a, b) =>
+    filter === "finished" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)
+  );
+  for (const m of sortedFiltered) {
     const day = m.date.slice(0, 10);
     if (!byDate.has(day)) byDate.set(day, []);
     byDate.get(day)!.push(m);

@@ -69,7 +69,7 @@ export default function AdminPage() {
   if (loading) return <Spinner />;
   if (!profile?.isAdmin) return null;
 
-  const byDate = groupByDate([...MATCHES].sort((a, b) => a.date.localeCompare(b.date)));
+  const byDate = groupByDate([...MATCHES].sort((a, b) => b.date.localeCompare(a.date)));
 
   return (
     <div className="max-w-3xl mx-auto">
