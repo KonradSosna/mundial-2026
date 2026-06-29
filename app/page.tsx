@@ -83,7 +83,7 @@ export default function HomePage() {
         <p className="text-sm text-green-300 mt-2">
           Typuj wyniki i zdobywaj punkty —{" "}
           <strong className="text-white">2 pkt</strong> za dokładny wynik,{" "}
-          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę
+          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę,{" "}
           <strong className="text-white">1 pkt</strong> za awans druzyny
         </p>
       </div>
