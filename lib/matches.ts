@@ -135,14 +135,14 @@ export const MATCHES: StaticMatch[] = [
   { id: "R32_16", home: "Colombia", away: "Ghana", homeFlag: "🇨🇴", awayFlag: "🇬🇭", date: "2026-07-04T03:30:00", stage: "round32" },
 
   // Round of 16
-  { id: "R16_1", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-04T19:00:00", stage: "round16" },
-  { id: "R16_2", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-04T23:00:00", stage: "round16" },
-  { id: "R16_3", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-05T22:00:00", stage: "round16" },
-  { id: "R16_4", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-06T02:00:00", stage: "round16" },
-  { id: "R16_5", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-06T21:00:00", stage: "round16" },
-  { id: "R16_6", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-07T02:00:00", stage: "round16" },
+  { id: "R16_1", home: "Canada", away: "Morocco", homeFlag: "🇨🇦", awayFlag: "🇲🇦", date: "2026-07-04T19:00:00", stage: "round16" },
+  { id: "R16_2", home: "Paraguay", away: "France", homeFlag: "🇵🇾", awayFlag: "🇫🇷", date: "2026-07-04T23:00:00", stage: "round16" },
+  { id: "R16_3", home: "Brazil", away: "Norway", homeFlag: "🇧🇷", awayFlag: "🇳🇴", date: "2026-07-05T22:00:00", stage: "round16" },
+  { id: "R16_4", home: "Mexico", away: "England", homeFlag: "🇲🇽", awayFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", date: "2026-07-06T02:00:00", stage: "round16" },
+  { id: "R16_5", home: "Portugal", away: "Spain", homeFlag: "🇵🇹", awayFlag: "🇪🇸", date: "2026-07-06T21:00:00", stage: "round16" },
+  { id: "R16_6", home: "USA", away: "Belgium", homeFlag: "🇺🇸", awayFlag: "🇧🇪", date: "2026-07-07T02:00:00", stage: "round16" },
   { id: "R16_7", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-07T18:00:00", stage: "round16" },
-  { id: "R16_8", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-07T22:00:00", stage: "round16" },
+  { id: "R16_8", home: "Switzerland", away: "TBD", homeFlag: "🇨🇭", awayFlag: "", date: "2026-07-07T22:00:00", stage: "round16" },
 
   // Quarter-finals
   { id: "QF1", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-09T22:00:00", stage: "quarter" },
