@@ -82,9 +82,9 @@ export default function HomePage() {
         <p className="text-green-200">USA · Kanada · Meksyk</p>
         <p className="text-sm text-green-300 mt-2">
           Typuj wyniki i zdobywaj punkty —{" "}
-          <strong className="text-white">2 pkt</strong> za dokładny wynik,{" "}
-          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę,{" "}
-          <strong className="text-white">1 pkt</strong> za awans druzyny
+          <strong className="text-white">4 pkt</strong> za dokładny wynik,{" "}
+          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę
+          {" "}(lub dokładny remis z niepoprawną drużyną po dogrywce)
         </p>
       </div>
 

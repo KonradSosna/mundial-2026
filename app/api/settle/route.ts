@@ -23,7 +23,11 @@ export async function GET(req: Request) {
     const resultDoc = await db.doc(`results/${match.id}`).get();
     if (!resultDoc.exists) continue;
 
-    const result = resultDoc.data() as { homeScore: number; awayScore: number };
+    const result = resultDoc.data() as {
+      homeScore: number;
+      awayScore: number;
+      tiebreaker?: "home" | "away";
+    };
 
     const betsSnap = await db
       .collection("bets")
@@ -35,16 +39,31 @@ export async function GET(req: Request) {
 
     const batch = db.batch();
 
-    for (const betDoc of betsSnap.docs) {
-      const bet = betDoc.data() as { userId: string; homeScore: number; awayScore: number };
+    const actualIsDraw = result.homeScore === result.awayScore;
+    const actualOutcome = Math.sign(result.homeScore - result.awayScore);
 
-      const actualResult = Math.sign(result.homeScore - result.awayScore);
-      const betResult = Math.sign(bet.homeScore - bet.awayScore);
+    for (const betDoc of betsSnap.docs) {
+      const bet = betDoc.data() as {
+        userId: string;
+        homeScore: number;
+        awayScore: number;
+        tiebreaker?: "home" | "away";
+      };
+
+      const betOutcome = Math.sign(bet.homeScore - bet.awayScore);
+      const exactScore = bet.homeScore === result.homeScore && bet.awayScore === result.awayScore;
 
       let pts = 0;
-      if (bet.homeScore === result.homeScore && bet.awayScore === result.awayScore) {
-        pts = 3;
-      } else if (betResult === actualResult) {
+      if (exactScore) {
+        // Exact score in regular time: 4 pts, or 1 pt if the match went to
+        // extra time and the wrong side was picked to advance.
+        pts = actualIsDraw
+          ? result.tiebreaker && bet.tiebreaker === result.tiebreaker
+            ? 4
+            : 1
+          : 4;
+      } else if (!actualIsDraw && betOutcome === actualOutcome) {
+        // Wrong score, but the correct side was picked to win.
         pts = 1;
       }
 

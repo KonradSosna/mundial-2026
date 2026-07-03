@@ -79,6 +79,7 @@ export async function settleMatch(
   const snap = await getDocs(q);
   if (snap.empty) return;
 
+  const actualIsDraw = actualHome === actualAway;
   const actualOutcome = Math.sign(actualHome - actualAway);
 
   // Batch all writes for atomicity
@@ -88,14 +89,21 @@ export async function settleMatch(
   for (const betDoc of snap.docs) {
     const bet = betDoc.data() as Bet;
     const betOutcome = Math.sign(bet.homeScore - bet.awayScore);
+    const exactScore = bet.homeScore === actualHome && bet.awayScore === actualAway;
 
     let pts = 0;
-    // 2 pts for exact score in regular time
-    if (bet.homeScore === actualHome && bet.awayScore === actualAway) pts += 2;
-    // 1 pt for correct outcome (win/draw)
-    if (betOutcome === actualOutcome) pts += 1;
-    // 1 pt for correct tiebreaker (who wins after extra time)
-    if (actualTiebreaker && bet.tiebreaker && bet.tiebreaker === actualTiebreaker) pts += 1;
+    if (exactScore) {
+      // Exact score in regular time: 4 pts, or 1 pt if the match went to
+      // extra time and the wrong side was picked to advance.
+      pts = actualIsDraw
+        ? actualTiebreaker && bet.tiebreaker === actualTiebreaker
+          ? 4
+          : 1
+        : 4;
+    } else if (!actualIsDraw && betOutcome === actualOutcome) {
+      // Wrong score, but the correct side was picked to win.
+      pts = 1;
+    }
 
     batch.update(betDoc.ref, { settled: true, points: pts });
 
