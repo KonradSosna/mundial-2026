@@ -141,8 +141,8 @@ export const MATCHES: StaticMatch[] = [
   { id: "R16_4", home: "Mexico", away: "England", homeFlag: "🇲🇽", awayFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", date: "2026-07-06T02:00:00", stage: "round16" },
   { id: "R16_5", home: "Portugal", away: "Spain", homeFlag: "🇵🇹", awayFlag: "🇪🇸", date: "2026-07-06T21:00:00", stage: "round16" },
   { id: "R16_6", home: "USA", away: "Belgium", homeFlag: "🇺🇸", awayFlag: "🇧🇪", date: "2026-07-07T02:00:00", stage: "round16" },
-  { id: "R16_7", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-07T18:00:00", stage: "round16" },
-  { id: "R16_8", home: "Switzerland", away: "TBD", homeFlag: "🇨🇭", awayFlag: "", date: "2026-07-07T22:00:00", stage: "round16" },
+  { id: "R16_7", home: "Argentina", away: "Egypt", homeFlag: "🇦🇷", awayFlag: "🇪🇬", date: "2026-07-07T18:00:00", stage: "round16" },
+  { id: "R16_8", home: "Switzerland", away: "Colombia", homeFlag: "🇨🇭", awayFlag: "🇨🇴", date: "2026-07-07T22:00:00", stage: "round16" },
 
   // Quarter-finals
   { id: "QF1", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-09T22:00:00", stage: "quarter" },
