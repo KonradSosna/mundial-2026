@@ -145,10 +145,10 @@ export const MATCHES: StaticMatch[] = [
   { id: "R16_8", home: "Switzerland", away: "Colombia", homeFlag: "🇨🇭", awayFlag: "🇨🇴", date: "2026-07-07T22:00:00", stage: "round16" },
 
   // Quarter-finals
-  { id: "QF1", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-09T22:00:00", stage: "quarter" },
-  { id: "QF2", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-10T21:00:00", stage: "quarter" },
-  { id: "QF3", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-11T23:00:00", stage: "quarter" },
-  { id: "QF4", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-12T03:00:00", stage: "quarter" },
+  { id: "QF1", home: "France", away: "Morocco", homeFlag: "🇫🇷", awayFlag: "🇲🇦", date: "2026-07-09T22:00:00", stage: "quarter" },
+  { id: "QF2", home: "Spain", away: "Belgium", homeFlag: "🇪🇸", awayFlag: "🇧🇪", date: "2026-07-10T21:00:00", stage: "quarter" },
+  { id: "QF3", home: "Norway", away: "England", homeFlag: "🇳🇴", awayFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", date: "2026-07-11T23:00:00", stage: "quarter" },
+  { id: "QF4", home: "Argentina", away: "Switzerland", homeFlag: "🇦🇷", awayFlag: "🇨🇭", date: "2026-07-12T03:00:00", stage: "quarter" },
 
   // Semi-finals
   { id: "SF1", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-14T21:00:00", stage: "semi" },
