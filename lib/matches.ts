@@ -155,10 +155,10 @@ export const MATCHES: StaticMatch[] = [
   { id: "SF2", home: "England", away: "Argentina", homeFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", awayFlag: "🇦🇷", date: "2026-07-15T21:00:00", stage: "semi" },
 
   // Third place play-off
-  { id: "TP", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-18T23:00:00", stage: "third" },
+  { id: "TP", home: "France", away: "England", homeFlag: "🇫🇷", awayFlag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", date: "2026-07-18T23:00:00", stage: "third" },
 
   // Final
-  { id: "FIN", home: "TBD", away: "TBD", homeFlag: "", awayFlag: "", date: "2026-07-19T21:00:00", stage: "final" },
+  { id: "FIN", home: "Spain", away: "Argentina", homeFlag: "🇪🇸", awayFlag: "🇦🇷", date: "2026-07-19T21:00:00", stage: "final" },
 ];
 
 export function getMatchesByGroup() {
