@@ -135,7 +135,7 @@ export default function ProfilePage() {
           {bets.length === 0 && (
             <div className="text-center py-10 text-gray-400">
               Nie masz jeszcze żadnych typów.{" "}
-              <Link href="/" className="text-green-600 hover:underline">Obstaw pierwszy mecz!</Link>
+              <Link href="/matches" className="text-green-600 hover:underline">Obstaw pierwszy mecz!</Link>
             </div>
           )}
         </>

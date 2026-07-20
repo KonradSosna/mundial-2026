@@ -1,123 +1,70 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase";
-import { Match, StaticMatch, MatchStatus, MATCHES } from "@/lib/matches";
-import { Bet, getUserBets } from "@/lib/bets";
 import { useAuth } from "@/lib/auth-context";
-import MatchCard from "@/components/MatchCard";
 import Spinner from "@/components/Spinner";
+import WinnerBanner from "@/components/WinnerBanner";
 
-type MatchResult = { homeScore: number; awayScore: number };
-
-const MATCH_DURATION_MS = 110 * 60 * 1000;
-
-function computeStatus(matchDate: string, hasResult: boolean): MatchStatus {
-  const now = Date.now();
-  const start = new Date(matchDate).getTime();
-  if (hasResult || now >= start + MATCH_DURATION_MS) return "finished";
-  if (now >= start) return "live";
-  return "upcoming";
+interface UserRow {
+  uid: string;
+  displayName: string;
+  points: number;
+  email: string;
 }
 
 export default function HomePage() {
   const { user } = useAuth();
-  const [bets, setBets] = useState<Record<string, Bet>>({});
-  const [results, setResults] = useState<Record<string, MatchResult>>({});
-  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("upcoming");
+  const [rows, setRows] = useState<UserRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDocs(collection(db, "results"))
-      .then((snap) => {
-        const map: Record<string, MatchResult> = {};
-        snap.docs.forEach((d) => {
-          const data = d.data();
-          map[d.id] = { homeScore: data.homeScore, awayScore: data.awayScore };
-        });
-        setResults(map);
-      })
+    const q = query(collection(db, "users"), orderBy("points", "desc"));
+    getDocs(q)
+      .then((snap) => setRows(snap.docs.map((d) => d.data() as UserRow)))
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    if (!user) return;
-    getUserBets(user.uid).then((list) => {
-      const map: Record<string, Bet> = {};
-      for (const b of list) map[b.matchId] = b;
-      setBets(map);
-    });
-  }, [user]);
-
-  // Merge static matches with dynamic status + Firestore results
-  const mergedMatches: Match[] = MATCHES.map((m: StaticMatch) => {
-    const result = results[m.id];
-    const status = computeStatus(m.date, !!result);
-    return result
-      ? { ...m, status, homeScore: result.homeScore, awayScore: result.awayScore }
-      : { ...m, status };
-  });
-
-  const filtered = mergedMatches.filter((m) => {
-    if (filter === "upcoming") return m.status === "upcoming" || m.status === "live";
-    if (filter === "finished") return m.status === "finished";
-    return true;
-  });
-
-  const byDate = new Map<string, Match[]>();
-  const sortedFiltered = [...filtered].sort((a, b) =>
-    filter === "finished" ? b.date.localeCompare(a.date) : a.date.localeCompare(b.date)
-  );
-  for (const m of sortedFiltered) {
-    const day = m.date.slice(0, 10);
-    if (!byDate.has(day)) byDate.set(day, []);
-    byDate.get(day)!.push(m);
-  }
+  const medals = ["🥇", "🥈", "🥉"];
 
   return (
-    <div>
-      <div className="bg-gradient-to-r from-green-800 to-green-600 rounded-2xl p-6 mb-6 text-white text-center">
-        <h1 className="text-3xl font-bold mb-1">⚽ Mundial 2026</h1>
-        <p className="text-green-200">USA · Kanada · Meksyk</p>
-        <p className="text-sm text-green-300 mt-2">
-          Typuj wyniki i zdobywaj punkty —{" "}
-          <strong className="text-white">4 pkt</strong> za dokładny wynik,{" "}
-          <strong className="text-white">1 pkt</strong> za poprawnego zwycięzcę
-          {" "}(lub dokładny remis z niepoprawną drużyną po dogrywce)
-        </p>
-      </div>
+    <div className="max-w-2xl mx-auto">
+      <WinnerBanner />
 
-      <div className="flex gap-2 mb-6">
-        {(["upcoming", "all", "finished"] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              filter === f
-                ? "bg-green-700 text-white"
-                : "bg-white text-gray-600 border border-gray-200 hover:border-green-400"
-            }`}
-          >
-            {f === "all" ? "Wszystkie" : f === "upcoming" ? "Nadchodzące" : "Zakończone"}
-          </button>
-        ))}
+      <div className="text-center mb-6">
+        <h1 className="text-2xl font-bold text-gray-800">🏆 Ranking typerów</h1>
+        <p className="text-gray-500 text-sm mt-1">Mundial 2026</p>
       </div>
 
       {loading ? (
         <Spinner />
-      ) : Array.from(byDate.entries()).map(([day, matches]) => (
-        <div key={day} className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
-            {new Date(day).toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" })}
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {matches.map((m) => (
-              <MatchCard key={m.id} match={m} existingBet={bets[m.id] ?? null} />
-            ))}
-          </div>
+      ) : rows.length === 0 ? (
+        <div className="text-center py-10 text-gray-400">Nikt jeszcze nie zdobył punktów.</div>
+      ) : (
+        <div className="space-y-2">
+          {rows.map((row, i) => (
+            <div
+              key={row.uid}
+              className={`flex items-center gap-4 bg-white rounded-xl px-5 py-4 shadow-sm border ${
+                row.uid === user?.uid ? "border-green-400 bg-green-50" : "border-gray-100"
+              }`}
+            >
+              <span className="text-2xl w-8 text-center">{medals[i] ?? `${i + 1}.`}</span>
+              <div className="flex-1">
+                <p className="font-semibold text-gray-800">{row.displayName}</p>
+                {row.uid === user?.uid && (
+                  <span className="text-xs text-green-600 font-medium">To Ty!</span>
+                )}
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-green-700">{row.points}</span>
+                <span className="text-gray-500 text-sm ml-1">pkt</span>
+              </div>
+            </div>
+          ))}
         </div>
-      ))}
+      )}
     </div>
   );
 }

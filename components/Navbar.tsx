@@ -51,10 +51,10 @@ export default function Navbar() {
         {/* Desktop menu */}
         <div className="hidden sm:flex items-center gap-4 text-sm">
           <Link href="/" className="hover:text-yellow-300 transition-colors">
-            Mecze
-          </Link>
-          <Link href="/leaderboard" className="hover:text-yellow-300 transition-colors">
             Ranking
+          </Link>
+          <Link href="/matches" className="hover:text-yellow-300 transition-colors">
+            Mecze
           </Link>
 
           {user ? (
@@ -120,10 +120,10 @@ export default function Navbar() {
       {open && (
         <div className="sm:hidden bg-green-900 px-4 pb-4 flex flex-col gap-3 text-sm">
           <Link href="/" onClick={close} className="py-2 border-b border-green-700 hover:text-yellow-300 transition-colors">
-            Mecze
-          </Link>
-          <Link href="/leaderboard" onClick={close} className="py-2 border-b border-green-700 hover:text-yellow-300 transition-colors">
             Ranking
+          </Link>
+          <Link href="/matches" onClick={close} className="py-2 border-b border-green-700 hover:text-yellow-300 transition-colors">
+            Mecze
           </Link>
 
           {user ? (
