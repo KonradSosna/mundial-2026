@@ -71,7 +71,7 @@ export default function ProfilePage() {
         <>
           {pending.length > 0 && (
             <div className="mb-6">
-              <h2 className="font-bold text-gray-700 mb-3">Oczekujące ({pending.length})</h2>
+              <h2 className="font-bold text-white mb-3">Oczekujące ({pending.length})</h2>
               <div className="space-y-2">
                 {pending.map((bet) => {
                   const match = matchMap[bet.matchId];
@@ -80,9 +80,9 @@ export default function ProfilePage() {
                     <div key={bet.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm">
                         <span>{match.homeFlag}</span>
-                        <span className="font-medium">{match.home}</span>
+                        <span className="font-medium text-black">{match.home}</span>
                         <span className="text-gray-400">vs</span>
-                        <span className="font-medium">{match.away}</span>
+                        <span className="font-medium text-black">{match.away}</span>
                         <span>{match.awayFlag}</span>
                       </div>
                       <span className="font-bold text-green-700 text-sm">
@@ -97,7 +97,7 @@ export default function ProfilePage() {
 
           {settled.length > 0 && (
             <div>
-              <h2 className="font-bold text-gray-700 mb-3">Rozliczone ({settled.length})</h2>
+              <h2 className="font-bold text-white mb-3">Rozliczone ({settled.length})</h2>
               <div className="space-y-2">
                 {settled.map((bet) => {
                   const match = matchMap[bet.matchId];
@@ -107,9 +107,9 @@ export default function ProfilePage() {
                     <div key={bet.id} className="bg-white rounded-xl border border-gray-100 px-4 py-3 flex items-center justify-between">
                       <div className="flex items-center gap-2 text-sm">
                         <span>{match.homeFlag}</span>
-                        <span className="font-medium">{match.home}</span>
+                        <span className="font-medium text-black">{match.home}</span>
                         <span className="text-gray-400">vs</span>
-                        <span className="font-medium">{match.away}</span>
+                        <span className="font-medium text-black">{match.away}</span>
                         <span>{match.awayFlag}</span>
                       </div>
                       <div className="flex items-center gap-3 text-sm">

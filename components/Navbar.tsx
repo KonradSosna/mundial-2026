@@ -81,7 +81,7 @@ export default function Navbar() {
               </div>
             </>
           ) : (
-            <div className="flex gap-2 border-l border-green-600 pl-4">
+            <div className="flex items-center gap-2 border-l border-green-600 pl-4">
               <Link href="/login" className="hover:text-yellow-300 transition-colors">
                 Logowanie
               </Link>

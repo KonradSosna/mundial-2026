@@ -25,7 +25,7 @@ export default function MatchesPage() {
   const { user } = useAuth();
   const [bets, setBets] = useState<Record<string, Bet>>({});
   const [results, setResults] = useState<Record<string, MatchResult>>({});
-  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("upcoming");
+  const [filter, setFilter] = useState<"all" | "upcoming" | "finished">("finished");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -108,7 +108,7 @@ export default function MatchesPage() {
         <Spinner />
       ) : Array.from(byDate.entries()).map(([day, matches]) => (
         <div key={day} className="mb-8">
-          <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+          <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-3">
             {new Date(day).toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" })}
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">

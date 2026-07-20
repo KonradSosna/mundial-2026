@@ -33,8 +33,8 @@ export default function HomePage() {
       <WinnerBanner />
 
       <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">🏆 Ranking typerów</h1>
-        <p className="text-gray-500 text-sm mt-1">Mundial 2026</p>
+        <h1 className="text-2xl font-bold text-white">🏆 Ranking typerów</h1>
+        <p className="text-white text-sm mt-1">Mundial 2026</p>
       </div>
 
       {loading ? (

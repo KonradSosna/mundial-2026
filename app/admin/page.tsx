@@ -92,9 +92,9 @@ export default function AdminPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2 text-sm font-medium">
             <span className="text-gray-400 text-xs w-10 shrink-0">{formatTime(match.date)}</span>
-            <span>{match.homeFlag} {match.home}</span>
+            <span className="text-black">{match.homeFlag} {match.home}</span>
             <span className="text-gray-400">vs</span>
-            <span>{match.away} {match.awayFlag}</span>
+            <span className="text-black">{match.away} {match.awayFlag}</span>
             {match.group && (
               <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">
                 Gr. {match.group}
@@ -176,7 +176,7 @@ export default function AdminPage() {
 
   const renderDayGroup = ([day, matches]: [string, StaticMatch[]]) => (
     <div key={day}>
-      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">
+      <h2 className="text-sm font-semibold text-white uppercase tracking-wide mb-3">
         {formatDay(day)}
       </h2>
       <div className="space-y-2">
@@ -188,7 +188,7 @@ export default function AdminPage() {
   return (
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-800 mb-2">Panel administratora</h1>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-white mb-6">
         Wprowadź wyniki zakończonych meczów. System automatycznie przyzna punkty użytkownikom.
       </p>
 
@@ -198,7 +198,7 @@ export default function AdminPage() {
         {settledByDate.length > 0 && (
           <>
             <div className="border-t border-gray-200 pt-6">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-6">Rozliczone</p>
+              <p className="text-xs font-semibold text-white uppercase tracking-wide mb-6">Rozliczone</p>
               <div className="space-y-8">
                 {settledByDate.map(renderDayGroup)}
               </div>

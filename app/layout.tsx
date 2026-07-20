@@ -3,6 +3,7 @@ import { Geist } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/lib/auth-context";
 import Navbar from "@/components/Navbar";
+import AuthGuard from "@/components/AuthGuard";
 
 const geist = Geist({ subsets: ["latin"] });
 
@@ -34,7 +35,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <div className="fixed inset-0 -z-10 bg-black/55" />
         <AuthProvider>
           <Navbar />
-          <main className="max-w-5xl mx-auto px-4 py-6">{children}</main>
+          <main className="max-w-5xl mx-auto px-4 py-6">
+            <AuthGuard>{children}</AuthGuard>
+          </main>
         </AuthProvider>
       </body>
     </html>

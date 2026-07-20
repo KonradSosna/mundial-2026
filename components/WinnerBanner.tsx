@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, collection, query, orderBy, limit, getDocs } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { MATCHES } from "@/lib/matches";
 
@@ -21,7 +21,7 @@ const CONFETTI = Array.from({ length: 30 }, (_, i) => ({
 
 interface Winner {
   name: string;
-  flag: string;
+  points: number;
 }
 
 interface FinalResult {
@@ -35,23 +35,20 @@ export default function WinnerBanner() {
 
   useEffect(() => {
     getDoc(doc(db, "results", FINAL.id))
-      .then((snap) => {
+      .then(async (snap) => {
         if (!snap.exists()) return;
         const data = snap.data() as FinalResult;
 
-        let side: "home" | "away" | null = null;
-        if (data.homeScore !== data.awayScore) {
-          side = data.homeScore > data.awayScore ? "home" : "away";
-        } else if (data.tiebreaker) {
-          side = data.tiebreaker;
-        }
-        if (!side) return;
+        const isDecided =
+          data.homeScore !== data.awayScore || !!data.tiebreaker;
+        if (!isDecided) return;
 
-        setWinner(
-          side === "home"
-            ? { name: FINAL.home, flag: FINAL.homeFlag }
-            : { name: FINAL.away, flag: FINAL.awayFlag }
-        );
+        const q = query(collection(db, "users"), orderBy("points", "desc"), limit(1));
+        const topSnap = await getDocs(q);
+        if (topSnap.empty) return;
+
+        const top = topSnap.docs[0].data() as { displayName: string; points: number };
+        setWinner({ name: top.displayName, points: top.points });
       })
       .catch(() => {});
   }, []);
@@ -84,16 +81,19 @@ export default function WinnerBanner() {
           🏆
         </div>
         <p className="text-yellow-900/80 text-sm font-bold tracking-widest uppercase mb-2">
-          Mistrz Świata 2026
+          Mistrz Ograć Buka 2026
         </p>
         <div className="flex items-center justify-center gap-3">
           <span className="text-5xl" style={{ animation: "trophy-pop 0.8s ease-out 0.15s both" }}>
-            {winner.flag}
+            👑
           </span>
           <span className="text-3xl sm:text-4xl font-extrabold text-white drop-shadow-md">
             {winner.name}
           </span>
         </div>
+        <p className="text-yellow-900/80 text-sm font-semibold mt-2">
+          {winner.points} pkt
+        </p>
       </div>
     </div>
   );
